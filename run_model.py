@@ -1,5 +1,7 @@
+import time
 import cv2
 from ultralytics import YOLO
+import matplotlib.pyplot as plt
 
 model = YOLO("best.pt")
 model.task = 'detect'
@@ -15,12 +17,22 @@ if not cap.isOpened():
 
 print("Press 'q' to quit.")
 
+inference_times = []
+total_start = time.time()
+
 while True:
     success, frame = cap.read()
     
     if not success:
         print("Video finished or failed to read.")
         break
+
+    start = time.time()
+    results = model(frame, conf=0.5)
+    end = time.time()
+
+    inference_time = (end - start) * 1000
+    inference_times.append(inference_time)
 
     # Only show if at least 50% certain
     results = model(frame, conf=0.5)
@@ -51,3 +63,22 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
+
+total_end = time.time()
+total_elapsed = total_end - total_start
+
+if inference_times:
+    inference_times = inference_times[1:]
+    plt.figure(figsize=(12, 6))
+    plt.plot(inference_times, label="Inference time (ms)", color='blue')
+    plt.xlabel("Frame number")
+    plt.ylabel("Inference time (ms)")
+    plt.title("YOLO Inference Time Per Frame")
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+
+    print(f"Average: {sum(inference_times)/len(inference_times):.2f} ms")
+    print(f"Worst-case: {max(inference_times):.2f} ms")
+    print(f"Total time elapsed: {(total_elapsed):.2f} ms")
+    print(f"Total frames: {len(inference_times)}")
