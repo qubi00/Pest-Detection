@@ -3,7 +3,7 @@ import cv2
 from ultralytics import YOLO
 import matplotlib.pyplot as plt
 
-model = YOLO("best.pt")
+model = YOLO("best6.pt")
 model.task = 'detect'
 
 # source 0 is webcam
@@ -16,26 +16,25 @@ if not cap.isOpened():
     exit()
 
 print("Press 'q' to quit.")
+fps = cap.get(cv2.CAP_PROP_FPS)
 
+frames = 0
 inference_times = []
 total_start = time.time()
 
 while True:
     success, frame = cap.read()
+    frames += 1
     
     if not success:
         print("Video finished or failed to read.")
         break
 
-    start = time.time()
+    start = time.time() 
     results = model(frame, conf=0.5)
-    end = time.time()
-
-    inference_time = (end - start) * 1000
-    inference_times.append(inference_time)
-
-    # Only show if at least 50% certain
-    results = model(frame, conf=0.5)
+    end = time.time() 
+    inference_time = (end - start) * 1000 
+    inference_times.append(inference_time) 
 
     for result in results:
         for box in result.boxes:
@@ -61,11 +60,11 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-cap.release()
-cv2.destroyAllWindows()
-
 total_end = time.time()
 total_elapsed = total_end - total_start
+
+cap.release()
+cv2.destroyAllWindows()
 
 if inference_times:
     inference_times = inference_times[1:]
@@ -78,7 +77,10 @@ if inference_times:
     plt.legend()
     plt.show()
 
-    print(f"Average: {sum(inference_times)/len(inference_times):.2f} ms")
-    print(f"Worst-case: {max(inference_times):.2f} ms")
-    print(f"Total time elapsed: {(total_elapsed):.2f} ms")
-    print(f"Total frames: {len(inference_times)}")
+    print(f"Average: {sum(inference_times)/len(inference_times):.2f} ms") 
+    print(f"Worst-case: {max(inference_times):.2f} ms") 
+    
+print(f"Total time elapsed: {(total_elapsed):.2f} s")
+print(f"Total frames: {frames}")
+print(f"Camera FPS: {(fps):.2f}")
+print(f"Actual FPS: {(frames / (total_elapsed)):.2f}")
