@@ -1,4 +1,8 @@
 # Pest-Detection
+
+## Dependencies
+pip install -r requirements.txt
+
 ## Training
 Download the dataset at: https://universe.roboflow.com/mosquitos-u6ipx/mosquito-detection-dataset
 Modify the filepath of train_model.py to the yaml filepath
