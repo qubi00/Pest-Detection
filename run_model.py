@@ -3,7 +3,7 @@ import cv2
 from ultralytics import YOLO
 import matplotlib.pyplot as plt
 
-model = YOLO("best6.pt")
+model = YOLO("model640.pt")
 model.task = 'detect'
 
 # source 0 is webcam
